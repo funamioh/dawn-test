@@ -1,0 +1,4 @@
+[environments.development]
+theme = "139556782277"
+store = "funamioh-test-store"
+password  = "shptka_c3bd96a449d464c23da9b45e870c8135"
