@@ -1,0 +1,20 @@
+name: Shopify Lighthouse CI
+on: [push]
+jobs:
+  lhci:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+    - name: Lighthouse
+      uses: shopify/lighthouse-ci-action@v1
+      with:
+        access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
+        store: ${{ secrets.SHOP_STORE }}
+        password: ${{ secrets.SHOP_PASSWORD }}
