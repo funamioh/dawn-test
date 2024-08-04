@@ -58,17 +58,17 @@
                     {% comment %} value="{{ item.quantity }}" {% endcomment %}
                     value="0"
                     {% # theme-check-disable %}
-                    data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
+                    data-cart-quantity="{{ cart | item_count_for_variant: variant.id }}"
                     min="0"
-                    data-min="{{ item.variant.quantity_rule.min }}"
-                    {% if item.variant.quantity_rule.max != null %}
-                      max="{{ item.variant.quantity_rule.max }}"
+                    data-min="{{ variant.quantity_rule.min }}"
+                    {% if variant.quantity_rule.max != null %}
+                      max="{{ variant.quantity_rule.max }}"
                     {% endif %}
-                    step="{{ item.variant.quantity_rule.increment }}"
+                    step="{{ variant.quantity_rule.increment }}"
                     {% # theme-check-enable %}
                     aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}"
-                    id="Quantity-{{ item.index | plus: 1 }}"
-                    data-index="{{ item.index | plus: 1 }}"
+                    id="Quantity-{{ forloop.index }}"
+                    data-index="{{ forloop.index }}"
                   >
                   <button class="quantity__button" name="plus" type="button">
                     <span class="visually-hidden">
