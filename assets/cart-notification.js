@@ -63,6 +63,7 @@ class CartNotification extends HTMLElement {
     ];
   }
 
+  // parses a string containing either HTML or XML, returning an HTMLDocument or an XMLDocument.
   getSectionInnerHTML(html, selector = '.shopify-section') {
     return new DOMParser().parseFromString(html, 'text/html').querySelector(selector).innerHTML;
   }
