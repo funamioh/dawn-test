@@ -618,6 +618,30 @@
                 {% render 'icon-with-text', block: block %}
             {%- endcase -%}
           {%- endfor -%}
+          {% assign dimension_object = product.metafields.information.dimensions %}
+
+          {% if dimension_object != null %}
+            <table class="variants-table">
+              <tr>
+                <th>幅</th>
+                <td>{{ dimension_object.value.width }}</td>
+              </tr>
+              <tr>
+                <th>高さ</th>
+                <td>{{ dimension_object.value.height }}</td>
+              </tr>
+              <tr>
+                <th>奥行き</th>
+                <td>{{ dimension_object.value.depth }}</td>
+              </tr>
+              <tbody>
+                <tr></tr>
+              </tbody>
+            </table>
+          {% else %}
+            <p>No dimensions available.</p>
+          {% endif %}
+
           <a href="{{ product.url }}" class="link product__view-details animate-arrow">
             {{ 'products.product.view_full_details' | t }}
             {% render 'icon-arrow' %}
