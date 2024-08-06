@@ -1,3 +1,4 @@
+// defines 'product-info' element if none is defined
 if (!customElements.get('product-info')) {
   customElements.define(
     'product-info',
@@ -17,15 +18,17 @@ if (!customElements.get('product-info')) {
         this.quantityInput = this.querySelector('.quantity__input');
       }
 
+      // this is called when an element is added to the DOM
       connectedCallback() {
         this.initializeProductSwapUtility();
 
-        this.onVariantChangeUnsubscriber = subscribe(
-          PUB_SUB_EVENTS.optionValueSelectionChange,
-          this.handleOptionValueChange.bind(this)
-        );
+        // calls 'this.handleOptionValueChange' when option value is changed
+        // this.onVariantChangeUnsubscriber = subscribe(
+        //   PUB_SUB_EVENTS.optionValueSelectionChange,
+        //   this.handleOptionValueChange.bind(this)
+        // );
 
-        this.initQuantityHandlers();
+        // this.initQuantityHandlers();
         this.dispatchEvent(new CustomEvent('product-info:loaded', { bubbles: true }));
       }
 
@@ -45,6 +48,7 @@ if (!customElements.get('product-info')) {
         }
       }
 
+      // this is called when an element is removed from the DOM
       disconnectedCallback() {
         this.onVariantChangeUnsubscriber();
         this.cartUpdateUnsubscriber?.();
@@ -60,30 +64,33 @@ if (!customElements.get('product-info')) {
         });
       }
 
-      handleOptionValueChange({ data: { event, target, selectedOptionValues } }) {
-        if (!this.contains(event.target)) return;
+      // this function is no longer trigerred, as we don't switch variants
 
-        this.resetProductFormState();
+      // handleOptionValueChange({ data: { event, target, selectedOptionValues } }) {
+      //   if (!this.contains(event.target)) return;
 
-        const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
-        this.pendingRequestUrl = productUrl;
-        const shouldSwapProduct = this.dataset.url !== productUrl;
-        const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
+      //   // this.resetProductFormState();
 
-        this.renderProductInfo({
-          requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
-          targetId: target.id,
-          callback: shouldSwapProduct
-            ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
-            : this.handleUpdateProductInfo(productUrl),
-        });
-      }
+      //   const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
+      //   console.log(productUrl, 'product url');
+      //   this.pendingRequestUrl = productUrl;
+      //   const shouldSwapProduct = this.dataset.url !== productUrl;
+      //   const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
 
-      resetProductFormState() {
-        const productForm = this.productForm;
-        productForm?.toggleSubmitButton(true);
-        productForm?.handleErrorMessage();
-      }
+      //   this.renderProductInfo({
+      //     requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
+      //     targetId: target.id,
+      //     callback: shouldSwapProduct
+      //       ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
+      //       : this.handleUpdateProductInfo(productUrl),
+      //   });
+      // }
+
+      // resetProductFormState() {
+      //   const productForm = this.productForm;
+      //   productForm?.toggleSubmitButton(true);
+      //   productForm?.handleErrorMessage();
+      // }
 
       handleSwapProduct(productUrl, updateFullPage) {
         return (html) => {
@@ -137,79 +144,137 @@ if (!customElements.get('product-info')) {
           });
       }
 
-      getSelectedVariant(productInfoNode) {
-        const selectedVariant = productInfoNode.querySelector('variant-selects [data-selected-variant]')?.innerHTML;
-        return !!selectedVariant ? JSON.parse(selectedVariant) : null;
-      }
+      // getSelectedVariant(productInfoNode) {
+      //   const selectedVariant = productInfoNode.querySelector('variant-selects [data-selected-variant]')?.innerHTML;
+      //   return !!selectedVariant ? JSON.parse(selectedVariant) : null;
+      // }
 
-      buildRequestUrlWithParams(url, optionValues, shouldFetchFullPage = false) {
-        const params = [];
+      // buildRequestUrlWithParams(url, optionValues, shouldFetchFullPage = false) {
+      //   const params = [];
+      //   console.log(optionValues, 'option value');
 
-        !shouldFetchFullPage && params.push(`section_id=${this.sectionId}`);
+      //   !shouldFetchFullPage && params.push(`section_id=${this.sectionId}`);
 
-        if (optionValues.length) {
-          params.push(`option_values=${optionValues.join(',')}`);
-        }
+      //   if (optionValues.length) {
+      //     params.push(`option_values=${optionValues.join(',')}`);
+      //   }
 
-        return `${url}?${params.join('&')}`;
-      }
+      //   return `${url}?${params.join('&')}`;
+      // }
 
-      updateOptionValues(html) {
-        const variantSelects = html.querySelector('variant-selects');
-        if (variantSelects) {
-          HTMLUpdateUtility.viewTransition(this.variantSelectors, variantSelects, this.preProcessHtmlCallbacks);
-        }
-      }
+      // updateOptionValues(html) {
+      //   const variantSelects = html.querySelector('variant-selects');
+      //   if (variantSelects) {
+      //     HTMLUpdateUtility.viewTransition(this.variantSelectors, variantSelects, this.preProcessHtmlCallbacks);
+      //   }
+      // }
 
-      handleUpdateProductInfo(productUrl) {
-        return (html) => {
-          const variant = this.getSelectedVariant(html);
+      // implement the logic to add quantity to multiple variant
+      // confirm the following is right and make sure 'add to cart' is enabled
 
-          this.pickupAvailability?.update(variant);
-          this.updateOptionValues(html);
-          this.updateURL(productUrl, variant?.id);
-          this.updateVariantInputs(variant?.id);
+      updateQuantityRules(sectionId, html) {
+        if (!this.quantityInput) return;
+        this.setQuantityBoundries();
 
-          if (!variant) {
-            this.setUnavailable();
-            return;
+        const quantityFormUpdated = html.getElementById(`Quantity-Form-${sectionId}`);
+        if (!quantityFormUpdated) return;
+
+        const quantityInputs = this.quantityForm.querySelectorAll('.quantity__input');
+
+        quantityInputs.forEach((current) => {
+          const variantId = current.getAttribute('data-quantity-variant-id');
+          if (!variantId) return;
+
+          const updated = quantityFormUpdated.querySelector(
+            `.quantity__input[data-quantity-variant-id="${variantId}"]`
+          );
+          if (!updated) return;
+
+          const attributes = ['data-cart-quantity', 'data-min', 'data-max', 'step'];
+          attributes.forEach((attribute) => {
+            const valueUpdated = updated.getAttribute(attribute);
+            if (valueUpdated !== null) {
+              current.setAttribute(attribute, valueUpdated);
+            } else {
+              current.removeAttribute(attribute);
+            }
+          });
+
+          const rulesUpdated = quantityFormUpdated.querySelector(
+            `.quantity__rules[data-quantity-variant-id="${variantId}"]`
+          );
+          if (rulesUpdated) {
+            const rulesCurrent = this.quantityForm.querySelector(
+              `.quantity__rules[data-quantity-variant-id="${variantId}"]`
+            );
+            if (rulesCurrent) {
+              rulesCurrent.innerHTML = rulesUpdated.innerHTML;
+            }
           }
 
-          this.updateMedia(html, variant?.featured_media?.id);
-
-          const updateSourceFromDestination = (id, shouldHide = (source) => false) => {
-            const source = html.getElementById(`${id}-${this.sectionId}`);
-            const destination = this.querySelector(`#${id}-${this.dataset.section}`);
-            if (source && destination) {
-              destination.innerHTML = source.innerHTML;
-              destination.classList.toggle('hidden', shouldHide(source));
-            }
-          };
-
-          updateSourceFromDestination('price');
-          updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
-          updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
-          updateSourceFromDestination('Volume');
-          updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
-
-          this.updateQuantityRules(this.sectionId, html);
-          this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
-          this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
-
-          this.productForm?.toggleSubmitButton(
-            html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
-            window.variantStrings.soldOut
+          const labelUpdated = quantityFormUpdated.querySelector(
+            `.quantity__label[data-quantity-variant-id="${variantId}"]`
           );
-
-          publish(PUB_SUB_EVENTS.variantChange, {
-            data: {
-              sectionId: this.sectionId,
-              html,
-              variant,
-            },
-          });
-        };
+          if (labelUpdated) {
+            const labelCurrent = this.quantityForm.querySelector(
+              `.quantity__label[data-quantity-variant-id="${variantId}"]`
+            );
+            if (labelCurrent) {
+              labelCurrent.innerHTML = labelUpdated.innerHTML;
+            }
+          }
+        });
       }
+
+      // handleUpdateProductInfo(productUrl) {
+      //   return (html) => {
+      //     const variant = this.getSelectedVariant(html);
+
+      //     this.pickupAvailability?.update(variant);
+      //     this.updateOptionValues(html);
+      //     this.updateURL(productUrl, variant?.id);
+      //     this.updateVariantInputs(variant?.id);
+
+      //     if (!variant) {
+      //       this.setUnavailable();
+      //       return;
+      //     }
+
+      //     this.updateMedia(html, variant?.featured_media?.id);
+
+      //     const updateSourceFromDestination = (id, shouldHide = (source) => false) => {
+      //       const source = html.getElementById(`${id}-${this.sectionId}`);
+      //       const destination = this.querySelector(`#${id}-${this.dataset.section}`);
+      //       if (source && destination) {
+      //         destination.innerHTML = source.innerHTML;
+      //         destination.classList.toggle('hidden', shouldHide(source));
+      //       }
+      //     };
+
+      //     updateSourceFromDestination('price');
+      //     updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
+      //     updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
+      //     updateSourceFromDestination('Volume');
+      //     updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
+
+      //     this.updateQuantityRules(this.sectionId, html);
+      //     this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
+      //     this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
+
+      //     this.productForm?.toggleSubmitButton(
+      //       html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
+      //       window.variantStrings.soldOut
+      //     );
+
+      //     publish(PUB_SUB_EVENTS.variantChange, {
+      //       data: {
+      //         sectionId: this.sectionId,
+      //         html,
+      //         variant,
+      //       },
+      //     });
+      //   };
+      // }
 
       updateVariantInputs(variantId) {
         this.querySelectorAll(
@@ -221,6 +286,7 @@ if (!customElements.get('product-info')) {
         });
       }
 
+      // URLを更新する必要は無くなった
       updateURL(url, variantId) {
         this.querySelector('share-button')?.updateUrl(
           `${window.shopUrl}${url}${variantId ? `?variant=${variantId}` : ''}`
@@ -350,32 +416,35 @@ if (!customElements.get('product-info')) {
           .finally(() => this.querySelector('.quantity__rules-cart .loading__spinner').classList.add('hidden'));
       }
 
-      updateQuantityRules(sectionId, html) {
-        if (!this.quantityInput) return;
-        this.setQuantityBoundries();
+      // uncomment the following lines after trying another approach
 
-        const quantityFormUpdated = html.getElementById(`Quantity-Form-${sectionId}`);
-        const selectors = ['.quantity__input', '.quantity__rules', '.quantity__label'];
-        for (let selector of selectors) {
-          const current = this.quantityForm.querySelector(selector);
-          const updated = quantityFormUpdated.querySelector(selector);
-          if (!current || !updated) continue;
-          if (selector === '.quantity__input') {
-            const attributes = ['data-cart-quantity', 'data-min', 'data-max', 'step'];
-            for (let attribute of attributes) {
-              const valueUpdated = updated.getAttribute(attribute);
-              if (valueUpdated !== null) {
-                current.setAttribute(attribute, valueUpdated);
-              } else {
-                current.removeAttribute(attribute);
-              }
-            }
-          } else {
-            current.innerHTML = updated.innerHTML;
-          }
-        }
-      }
+      // updateQuantityRules(sectionId, html) {
+      //   if (!this.quantityInput) return;
+      //   this.setQuantityBoundries();
 
+      //   const quantityFormUpdated = html.getElementById(`Quantity-Form-${sectionId}`);
+      //   const selectors = ['.quantity__input', '.quantity__rules', '.quantity__label'];
+      //   for (let selector of selectors) {
+      //     const current = this.quantityForm.querySelector(selector);
+      //     const updated = quantityFormUpdated.querySelector(selector);
+      //     if (!current || !updated) continue; // go to the next iteration
+      //     if (selector === '.quantity__input') {
+      //       const attributes = ['data-cart-quantity', 'data-min', 'data-max', 'step'];
+      //       for (let attribute of attributes) {
+      //         const valueUpdated = updated.getAttribute(attribute);
+      //         if (valueUpdated !== null) {
+      //           current.setAttribute(attribute, valueUpdated);
+      //         } else {
+      //           current.removeAttribute(attribute);
+      //         }
+      //       }
+      //     } else {
+      //       current.innerHTML = updated.innerHTML;
+      //     }
+      //   }
+      // }
+
+      // this getter is called when productForm is accessed
       get productForm() {
         return this.querySelector(`product-form`);
       }
