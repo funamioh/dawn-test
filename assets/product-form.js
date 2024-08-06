@@ -29,26 +29,50 @@ if (!customElements.get('product-form')) {
 
         const config = fetchConfig('javascript');
         config.headers['X-Requested-With'] = 'XMLHttpRequest';
-        delete config.headers['Content-Type'];
+        config.headers['Content-Type'] = 'application/json';
 
-        const formData = new FormData(this.form);
+        // const formData = new FormData(this.form);
+
+        let formData = {
+          items: [],
+        };
+
+        const quantityInputs = document.querySelectorAll('.quantity__input');
+
+        quantityInputs.forEach((quantityInput) => {
+          const id = quantityInput.getAttribute('data-quantity-variant-id');
+          const quantity = parseInt(quantityInput.value, 10);
+
+          if (quantity > 0) {
+            formData.items.push({
+              id,
+              quantity,
+            });
+            console.log(formData.items, 'items');
+          }
+        });
+
         if (this.cart) {
-          formData.append(
-            'sections',
-            this.cart.getSectionsToRender().map((section) => section.id)
-          );
-          formData.append('sections_url', window.location.pathname);
-          this.cart.setActiveElement(document.activeElement);
+          console.log('this cart exists');
+          formData.sections = this.cart.getSectionsToRender().map((section) => section.id);
+          formData.sections_url = window.location.pathname;
         }
-        config.body = formData;
+        config.body = JSON.stringify(formData);
 
-        fetch(`${routes.cart_add_url}`, config)
+        fetch(window.Shopify.routes.root + 'cart/add.js', {
+          // fetch(`${routes.cart_add_url}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        })
           .then((response) => response.json())
           .then((response) => {
             if (response.status) {
               publish(PUB_SUB_EVENTS.cartError, {
                 source: 'product-form',
-                productVariantId: formData.get('id'),
+                productVariantId: formData.items.map((item) => item.id),
                 errors: response.errors || response.description,
                 message: response.message,
               });
@@ -69,7 +93,7 @@ if (!customElements.get('product-form')) {
             if (!this.error)
               publish(PUB_SUB_EVENTS.cartUpdate, {
                 source: 'product-form',
-                productVariantId: formData.get('id'),
+                productVariantId: formData.items.map((item) => item.id),
                 cartData: response,
               });
             this.error = false;
@@ -80,6 +104,7 @@ if (!customElements.get('product-form')) {
                 () => {
                   setTimeout(() => {
                     this.cart.renderContents(response);
+                    console.log(response, 'rendered1');
                   });
                 },
                 { once: true }
@@ -87,6 +112,7 @@ if (!customElements.get('product-form')) {
               quickAddModal.hide(true);
             } else {
               this.cart.renderContents(response);
+              console.log(response, 'rendered2');
             }
           })
           .catch((e) => {

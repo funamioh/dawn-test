@@ -40,7 +40,6 @@
             <th>Quantity</th>
           </tr>
         </thead>
-        {% comment %} variantパターンがsizeとカラーの時(カラーが一色でサイズが二つの時に4列表示される問題) {% endcomment %}
         <tbody>
           {% for variant in product.variants %}
             {% comment %} {% for option in variant.options %} {% endcomment %}
