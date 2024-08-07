@@ -31,8 +31,6 @@ if (!customElements.get('product-form')) {
         config.headers['X-Requested-With'] = 'XMLHttpRequest';
         config.headers['Content-Type'] = 'application/json';
 
-        // const formData = new FormData(this.form);
-
         let formData = {
           items: [],
         };
@@ -53,14 +51,12 @@ if (!customElements.get('product-form')) {
         });
 
         if (this.cart) {
-          console.log('this cart exists');
           formData.sections = this.cart.getSectionsToRender().map((section) => section.id);
           formData.sections_url = window.location.pathname;
         }
         config.body = JSON.stringify(formData);
 
         fetch(window.Shopify.routes.root + 'cart/add.js', {
-          // fetch(`${routes.cart_add_url}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -99,12 +95,12 @@ if (!customElements.get('product-form')) {
             this.error = false;
             const quickAddModal = this.closest('quick-add-modal');
             if (quickAddModal) {
+              quickAddModal.show();
               document.body.addEventListener(
                 'modalClosed',
                 () => {
                   setTimeout(() => {
                     this.cart.renderContents(response);
-                    console.log(response, 'rendered1');
                   });
                 },
                 { once: true }
@@ -112,7 +108,6 @@ if (!customElements.get('product-form')) {
               quickAddModal.hide(true);
             } else {
               this.cart.renderContents(response);
-              console.log(response, 'rendered2');
             }
           })
           .catch((e) => {

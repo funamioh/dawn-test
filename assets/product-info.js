@@ -64,34 +64,6 @@ if (!customElements.get('product-info')) {
         });
       }
 
-      // this function is no longer trigerred, as we don't switch variants
-
-      // handleOptionValueChange({ data: { event, target, selectedOptionValues } }) {
-      //   if (!this.contains(event.target)) return;
-
-      //   // this.resetProductFormState();
-
-      //   const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
-      //   console.log(productUrl, 'product url');
-      //   this.pendingRequestUrl = productUrl;
-      //   const shouldSwapProduct = this.dataset.url !== productUrl;
-      //   const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
-
-      //   this.renderProductInfo({
-      //     requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
-      //     targetId: target.id,
-      //     callback: shouldSwapProduct
-      //       ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
-      //       : this.handleUpdateProductInfo(productUrl),
-      //   });
-      // }
-
-      // resetProductFormState() {
-      //   const productForm = this.productForm;
-      //   productForm?.toggleSubmitButton(true);
-      //   productForm?.handleErrorMessage();
-      // }
-
       handleSwapProduct(productUrl, updateFullPage) {
         return (html) => {
           this.productModal?.remove();
@@ -143,34 +115,6 @@ if (!customElements.get('product-info')) {
             }
           });
       }
-
-      // getSelectedVariant(productInfoNode) {
-      //   const selectedVariant = productInfoNode.querySelector('variant-selects [data-selected-variant]')?.innerHTML;
-      //   return !!selectedVariant ? JSON.parse(selectedVariant) : null;
-      // }
-
-      // buildRequestUrlWithParams(url, optionValues, shouldFetchFullPage = false) {
-      //   const params = [];
-      //   console.log(optionValues, 'option value');
-
-      //   !shouldFetchFullPage && params.push(`section_id=${this.sectionId}`);
-
-      //   if (optionValues.length) {
-      //     params.push(`option_values=${optionValues.join(',')}`);
-      //   }
-
-      //   return `${url}?${params.join('&')}`;
-      // }
-
-      // updateOptionValues(html) {
-      //   const variantSelects = html.querySelector('variant-selects');
-      //   if (variantSelects) {
-      //     HTMLUpdateUtility.viewTransition(this.variantSelectors, variantSelects, this.preProcessHtmlCallbacks);
-      //   }
-      // }
-
-      // implement the logic to add quantity to multiple variant
-      // confirm the following is right and make sure 'add to cart' is enabled
 
       updateQuantityRules(sectionId, html) {
         if (!this.quantityInput) return;
