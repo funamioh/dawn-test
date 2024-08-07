@@ -144,6 +144,20 @@ variant-selects {
   margin: 0.7rem 1.2rem 0.2rem 0;
 }
 
+.variants-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.variants-table th,
+.variants-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+.variants-table th {
+  background-color: #f4f4f4;
+}
+
 @media screen and (min-width: 750px) {
   .product-form__input--swatch .swatch-input__input + .swatch-input__label {
     --swatch-input--size: 2.8rem;

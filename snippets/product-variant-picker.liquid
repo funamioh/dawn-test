@@ -14,7 +14,8 @@
     data-section="{{ section.id }}"
     {{ block.shopify_attributes }}
   >
-    {%- for option in product.options_with_values -%}
+    {% comment %}
+      {%- for option in product.options_with_values -%}
       {%- liquid
         assign swatch_count = option.values | map: 'swatch' | compact | size
         assign picker_type = block.settings.picker_type
@@ -27,64 +28,91 @@
           endif
         endif
       -%}
-      {%- if picker_type == 'swatch' -%}
-        <fieldset class="js product-form__input product-form__input--swatch">
-          <legend class="form__label">
-            {{ option.name }}:
-            <span data-selected-value>
-              {{- option.selected_value -}}
-            </span>
-          </legend>
-          {% render 'product-variant-options',
-            product: product,
-            option: option,
-            block: block,
-            picker_type: picker_type
-          %}
-        </fieldset>
-      {%- elsif picker_type == 'button' -%}
-        <fieldset class="js product-form__input product-form__input--pill">
-          <legend class="form__label">{{ option.name }}</legend>
-          {% render 'product-variant-options',
-            product: product,
-            option: option,
-            block: block,
-            picker_type: picker_type
-          %}
-        </fieldset>
-      {%- else -%}
-        <div class="product-form__input product-form__input--dropdown">
-          <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
-            {{ option.name }}
-          </label>
-          <div class="select">
-            {%- if picker_type == 'swatch_dropdown' -%}
-              <span
-                data-selected-value
-                class="dropdown-swatch"
-              >
-                {% render 'swatch', swatch: option.selected_value.swatch, shape: block.settings.swatch_shape %}
-              </span>
-            {%- endif -%}
-            <select
-              id="Option-{{ section.id }}-{{ forloop.index0 }}"
-              class="select__select"
-              name="options[{{ option.name | escape }}]"
-              form="{{ product_form_id }}"
-            >
-              {% render 'product-variant-options',
-                product: product,
-                option: option,
-                block: block,
-                picker_type: picker_type
-              %}
-            </select>
-            {% render 'icon-caret' %}
-          </div>
-        </div>
-      {%- endif -%}
-    {%- endfor -%}
+    {% endcomment %}
 
-    <script type="application/json" data-selected-variant>{{ product.selected_or_first_available_variant | json }}</script>
+    {% comment %} add disabled class when product of displayed variant is sold out {% endcomment %}
+    <form action="/cart/add" method="post">
+      <table class="variants-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for variant in product.variants %}
+            {% comment %} {% for option in variant.options %} {% endcomment %}
+            <tr>
+              <td>{{ variant.title }}</td>
+              <td>{{ variant.price | money }}</td>
+              <td>
+                <quantity-input class="quantity cart-quantity">
+                  <button
+                    class="quantity__button"
+                    name="minus"
+                    type="button"
+                    {% if variant.available == false %}
+                      disabled
+                    {% endif %}
+                  >
+                    <span class="visually-hidden">
+                      {{- 'products.product.quantity.decrease' | t: product: variant.title | escape -}}
+                    </span>
+                    {% render 'icon-minus' %}
+                  </button>
+
+                  <input
+                    class="quantity__input"
+                    data-quantity-variant-id="{{ variant.id }}"
+                    type="number"
+                    name="updates[]"
+                    {% comment %} value="{{ item.quantity }}" {% endcomment %}
+                    value="0"
+                    {% # theme-check-disable %}
+                    data-cart-quantity="{{ cart | item_count_for_variant: variant.id }}"
+                    min="0"
+                    data-min="{{ variant.quantity_rule.min }}"
+                    {% if variant.quantity_rule.max != null %}
+                      max="{{ variant.quantity_rule.max }}"
+                    {% endif %}
+                    step="{{ variant.quantity_rule.increment }}"
+                    {% # theme-check-enable %}
+                    aria-label="{{ 'products.product.quantity.input_label' | t: product: variant.title | escape }}"
+                    id="Quantity-{{ forloop.index }}"
+                    data-index="{{ forloop.index }}"
+                    {% if variant.available == false %}
+                      disabled
+                    {% endif %}
+                  >
+                  <button
+                    class="quantity__button"
+                    name="plus"
+                    type="button"
+                    {% if variant.available == false %}
+                      disabled
+                    {% endif %}
+                  >
+                    <span class="visually-hidden">
+                      {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
+                    </span>
+                    {% render 'icon-plus' %}
+                  </button>
+                </quantity-input>
+              </td>
+            </tr>
+          {% endfor %}
+
+          {% comment %} <td><input type="text" name="quantity" min="1" value="0" style="text-align: right;"></td> {% endcomment %}
+
+          {% comment %} {% endfor %} {% endcomment %}
+        </tbody>
+      </table>
+    </form>
+    {% comment %} {%- endfor -%} {% endcomment %}
+
+    <script type="application/json" data-selected-variant>
+      {{ product.selected_or_first_available_variant | json }}
+    </script>
   </variant-selects>
 {%- endunless -%}

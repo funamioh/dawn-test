@@ -263,6 +263,7 @@ class QuantityInput extends HTMLElement {
     }
   }
 
+  // minus button disabled when value is equal to min
   validateQtyRules() {
     const value = parseInt(this.input.value);
     if (this.input.min) {

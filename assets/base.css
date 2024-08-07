@@ -5,7 +5,8 @@
   --alpha-badge-border: 0.1;
   --focused-base-outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
   --focused-base-outline-offset: 0.3rem;
-  --focused-base-box-shadow: 0 0 0 0.3rem rgb(var(--color-background)), 0 0 0.5rem 0.4rem rgba(var(--color-foreground), 0.3);
+  --focused-base-box-shadow: 0 0 0 0.3rem rgb(var(--color-background)),
+    0 0 0.5rem 0.4rem rgba(var(--color-foreground), 0.3);
 }
 
 .product-card-wrapper .card,
@@ -1323,7 +1324,8 @@ button.shopify-payment-button__button--unbranded {
 .customer button:disabled,
 .customer button[aria-disabled='true'],
 .customer button.disabled,
-.quantity__button.disabled {
+.quantity__input:disabled,
+.quantity__button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -1952,6 +1954,10 @@ input[type='checkbox'] {
 .quantity__input:focus {
   background-color: rgb(var(--color-background));
   z-index: 2;
+}
+
+.quantity__input,
+.quantity__button {
 }
 
 .quantity__button:not(:focus-visible):not(.focused),
