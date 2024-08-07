@@ -7,15 +7,24 @@ jobs:
     # env:
     #   FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
     steps:
-    - uses: actions/checkout@v2
-    # - name: Setup Node.js
-    #   uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v2
       # with:
       #   node-version: '20'
 
-    - name: Lighthouse
-      uses: shopify/lighthouse-ci-action@v1
-      env:
-        access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
-        store: ${{ secrets.SHOP_STORE }}
-        password: ${{ secrets.SHOP_PASSWORD }}
+      - name: Debug Environment Variables
+        run: |
+          echo ${{ secrets.SHOP_ACCESS_TOKEN }}
+          echo ${{ secrets.SHOP_STORE }}
+          echo ${{ secrets.SHOP_PASSWORD }}
+        env:
+          SHOP_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          SHOP_STORE: ${{ secrets.SHOP_STORE }}
+          SHOP_PASSWORD: ${{ secrets.SHOP_PASSWORD }}
+      - name: Lighthouse
+        uses: shopify/lighthouse-ci-action@v1
+        env:
+          SHOP_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          SHOP_STORE: ${{ secrets.SHOP_STORE }}
+          SHOP_PASSWORD: ${{ secrets.SHOP_PASSWORD }}
