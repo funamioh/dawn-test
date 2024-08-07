@@ -1,4 +1,4 @@
-name: Run Lighthouse CI
+name: Shopify CI
 
 on:
   push:
@@ -6,16 +6,26 @@ on:
       - main
 
 jobs:
-  lighthouse:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Lighthouse CI
+      - name: Print environment variables for debugging
+        run: |
+          echo "SHOP_STORE is set to: ${{ secrets.SHOP_STORE }}"
+          echo "INPUT_STORE is set to: ${{ secrets.SHOP_STORE }}"
+
+      - name: Run Shopify Script
         uses: lighthouse-ci-action@v1
         with:
+          access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          collection_handle: all
+          theme_root: .
+          lhci_min_score_performance: 0.6
+          lhci_min_score_accessibility: 0.9
+        env:
           INPUT_STORE: ${{ secrets.SHOP_STORE }}
           INPUT_PASSWORD: ${{ secrets.SHOP_PASSWORD }}
           INPUT_PRODUCT_HANDLE: ${{ secrets.SHOP_PRODUCT_HANDLE }}
@@ -29,3 +39,8 @@ jobs:
           INPUT_LHCI_GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
           INPUT_LHCI_MIN_SCORE_PERFORMANCE: ${{ secrets.LHCI_MIN_SCORE_PERFORMANCE }}
           INPUT_LHCI_MIN_SCORE_ACCESSIBILITY: ${{ secrets.LHCI_MIN_SCORE_ACCESSIBILITY }}
+
+      # Example of an additional step to confirm the execution path
+      - name: Verify Action Path
+        run: |
+          ls -l /github/workspace
