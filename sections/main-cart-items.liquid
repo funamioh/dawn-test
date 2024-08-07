@@ -230,6 +230,26 @@
                           <label class="visually-hidden" for="Quantity-{{ item.index | plus: 1 }}">
                             {{ 'products.product.quantity.label' | t }}
                           </label>
+                          <input
+                            class="quantity__input"
+                            data-quantity-variant-id="{{ item.variant.id }}"
+                            type="number"
+                            name="updates[]"
+                            value="{{ item.quantity }}"
+                            {% # theme-check-disable %}
+                            data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
+                            min="0"
+                            data-min="{{ item.variant.quantity_rule.min }}"
+                            {% if item.variant.quantity_rule.max != null %}
+                              max="{{ item.variant.quantity_rule.max }}"
+                            {% endif %}
+                            step="{{ item.variant.quantity_rule.increment }}"
+                            {% # theme-check-enable %}
+                            aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}"
+                            id="Quantity-{{ item.index | plus: 1 }}"
+                            data-index="{{ item.index | plus: 1 }}"
+                          >
+
                           <div class="quantity-popover-container{% if has_qty_rules or has_vol_pricing %} quantity-popover-container--hover{% endif %}">
                             {%- if has_qty_rules or has_vol_pricing -%}
                               <button
@@ -241,6 +261,7 @@
                               </button>
                             {%- endif -%}
                           </div>
+
                           <cart-remove-button
                             id="Remove-{{ item.index | plus: 1 }}"
                             data-index="{{ item.index | plus: 1 }}"

@@ -1,0 +1,49 @@
+name: Shopify CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Print environment variable for debugging
+        run: |
+          if [ -z "${{ secrets.SHOP_STORE }}" ]; then
+            echo "SHOP_STORE is not set"
+          else
+            echo "SHOP_STORE is set"
+          fi
+
+      - name: Run Shopify Script
+        uses: your-org/lighthouse-ci-action@v1
+        with:
+          access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          collection_handle: all
+          theme_root: .
+          lhci_min_score_performance: 0.6
+          lhci_min_score_accessibility: 0.9
+        env:
+          INPUT_STORE: ${{ secrets.SHOP_STORE }}
+          INPUT_PASSWORD: ${{ secrets.SHOP_PASSWORD }}
+          INPUT_PRODUCT_HANDLE: ${{ secrets.SHOP_PRODUCT_HANDLE }}
+          INPUT_COLLECTION_HANDLE: ${{ secrets.SHOP_COLLECTION_HANDLE }}
+          INPUT_THEME_ROOT: ${{ secrets.THEME_ROOT }}
+          INPUT_PULL_THEME: ${{ secrets.SHOP_PULL_THEME }}
+          INPUT_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }}
+          INPUT_APP_ID: ${{ secrets.SHOP_APP_ID }}
+          INPUT_APP_PASSWORD: ${{ secrets.SHOP_APP_PASSWORD }}
+          INPUT_LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          INPUT_LHCI_GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
+          INPUT_LHCI_MIN_SCORE_PERFORMANCE: ${{ secrets.LHCI_MIN_SCORE_PERFORMANCE }}
+          INPUT_LHCI_MIN_SCORE_ACCESSIBILITY: ${{ secrets.LHCI_MIN_SCORE_ACCESSIBILITY }}
+
+      # Example of an additional step to confirm the execution path
+      - name: Verify Action Path
+        run: |
+          ls -l /github/workspace
