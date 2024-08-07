@@ -1,5 +1,5 @@
 name: Shopify Lighthouse CI
-on: [push]
+on: push
 jobs:
   lhci:
     name: Lighthouse
@@ -13,16 +13,9 @@ jobs:
       # with:
       #   node-version: '20'
 
-    # - name: Verify SHOP_STORE
-    #   run: |
-    #     echo "SHOP_STORE=${{ secrets.SHOP_STORE }}"
-
-    - name: Set SHOP_STORE environment variable
-      run: echo "SHOP_STORE=funamioh-test-store.myshopify.com" >> $GITHUB_ENV
-
     - name: Lighthouse
       uses: shopify/lighthouse-ci-action@v1
       with:
         access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
-        store: funamioh-test-store.myshopify.com
+        store: ${{ secrets.SHOP_STORE }}
         password: ${{ secrets.SHOP_PASSWORD }}
