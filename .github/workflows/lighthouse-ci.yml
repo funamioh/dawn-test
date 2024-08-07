@@ -24,3 +24,5 @@ jobs:
         # SHOP_STORE is a must
         store: ${{ secrets.SHOP_STORE }}
         password: ${{ secrets.SHOP_PASSWORD }}
+
+        # test
