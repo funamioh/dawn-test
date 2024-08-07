@@ -13,12 +13,6 @@ jobs:
       # with:
       #   node-version: '20'
 
-      - name: Debug Environment Variables
-        run: echo "Debug Environment Variables === ${{ secrets.SHOP_ACCESS_TOKEN }} ${{ secrets.SHOP_STORE }} ${{ secrets.SHOP_PASSWORD }}"
-        env:
-          SHOP_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }}
-          SHOP_STORE: ${{ secrets.SHOP_STORE }}
-          SHOP_APP_PASSWORD: ${{ secrets.SHOP_PASSWORD }}
       - name: Lighthouse
         uses: shopify/lighthouse-ci-action@v1
         env:
