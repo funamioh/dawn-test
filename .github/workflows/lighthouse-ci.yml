@@ -14,10 +14,7 @@ jobs:
       #   node-version: '20'
 
       - name: Debug Environment Variables
-        run: |
-          echo ${{ secrets.SHOP_ACCESS_TOKEN }}
-          echo ${{ secrets.SHOP_STORE }}
-          echo ${{ secrets.SHOP_PASSWORD }}
+        run: echo "Test === SHOP_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }} SHOP_STORE: ${{ secrets.SHOP_STORE }} SHOP_PASSWORD: ${{ secrets.SHOP_PASSWORD }}"
         env:
           SHOP_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }}
           SHOP_STORE: ${{ secrets.SHOP_STORE }}
