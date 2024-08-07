@@ -12,13 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Print environment variables for debugging
+      - name: Print environment variable for debugging
         run: |
-          echo "SHOP_STORE is set to: ${{ secrets.SHOP_STORE }}"
-          echo "INPUT_STORE is set to: ${{ secrets.SHOP_STORE }}"
+          if [ -z "${{ secrets.SHOP_STORE }}" ]; then
+            echo "SHOP_STORE is not set"
+          else
+            echo "SHOP_STORE is set"
+          fi
 
       - name: Run Shopify Script
-        uses: lighthouse-ci-action@v1
+        uses: your-org/lighthouse-ci-action@v1
         with:
           access_token: ${{ secrets.SHOP_ACCESS_TOKEN }}
           collection_handle: all
