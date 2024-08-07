@@ -1,4 +1,4 @@
-name: Run Shopify Script
+name: Run Lighthouse CI
 
 on:
   push:
@@ -6,31 +6,16 @@ on:
       - main
 
 jobs:
-  build:
+  lighthouse:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Debug Environment Variables
-        run: |
-          echo "INPUT_STORE: ${{ secrets.SHOP_STORE }}"
-          echo "INPUT_PASSWORD: ${{ secrets.SHOP_PASSWORD }}"
-          echo "INPUT_PRODUCT_HANDLE: ${{ secrets.SHOP_PRODUCT_HANDLE }}"
-          echo "INPUT_COLLECTION_HANDLE: ${{ secrets.SHOP_COLLECTION_HANDLE }}"
-          echo "INPUT_THEME_ROOT: ${{ secrets.THEME_ROOT }}"
-          echo "INPUT_PULL_THEME: ${{ secrets.SHOP_PULL_THEME }}"
-          echo "INPUT_ACCESS_TOKEN: ${{ secrets.SHOP_ACCESS_TOKEN }}"
-          echo "INPUT_APP_ID: ${{ secrets.SHOP_APP_ID }}"
-          echo "INPUT_APP_PASSWORD: ${{ secrets.SHOP_APP_PASSWORD }}"
-          echo "INPUT_LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}"
-          echo "INPUT_LHCI_GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}"
-          echo "INPUT_LHCI_MIN_SCORE_PERFORMANCE: ${{ secrets.LHCI_MIN_SCORE_PERFORMANCE }}"
-          echo "INPUT_LHCI_MIN_SCORE_ACCESSIBILITY: ${{ secrets.LHCI_MIN_SCORE_ACCESSIBILITY }}"
-
-      - name: Run Shopify Script
-        env:
+      - name: Setup Lighthouse CI
+        uses: lighthouse-ci-action@v1
+        with:
           INPUT_STORE: ${{ secrets.SHOP_STORE }}
           INPUT_PASSWORD: ${{ secrets.SHOP_PASSWORD }}
           INPUT_PRODUCT_HANDLE: ${{ secrets.SHOP_PRODUCT_HANDLE }}
@@ -44,6 +29,3 @@ jobs:
           INPUT_LHCI_GITHUB_TOKEN: ${{ secrets.LHCI_GITHUB_TOKEN }}
           INPUT_LHCI_MIN_SCORE_PERFORMANCE: ${{ secrets.LHCI_MIN_SCORE_PERFORMANCE }}
           INPUT_LHCI_MIN_SCORE_ACCESSIBILITY: ${{ secrets.LHCI_MIN_SCORE_ACCESSIBILITY }}
-        run: |
-          # Assuming the entrypoint.sh script is included in your repository and you can run it directly
-          ./entrypoint.sh
