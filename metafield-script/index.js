@@ -12,7 +12,7 @@ const headers = {
 
 async function getProductMetafields(productId) {
   try {
-    const response = await axios.get(`${STORE_URL}/admin/api/2023-01/products/${productId}/metafields.json`, {
+    const response = await axios.get(`${STORE_URL}/admin/api/2024-07/products/${productId}/metafields.json`, {
       headers,
     });
     return response.data.metafields;
@@ -27,7 +27,7 @@ async function createOrUpdateMetafield(productId, metafield) {
     // update metafield, adding 1 to the value
     if (metafield) {
       metafield.value = parseInt(metafield.value, 10) + 1;
-      await axios.put(`${STORE_URL}/admin/api/2023-01/metafields/${metafield.id}.json`, { metafield }, { headers });
+      await axios.put(`${STORE_URL}/admin/api/2024-07/metafields/${metafield.id}.json`, { metafield }, { headers });
       console.log('Metafield updated:', metafield);
     } else {
       // create metafield with value 0
